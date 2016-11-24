@@ -1,0 +1,16 @@
+Package: ccharter
+Type: Package
+Title: Control Charts made easy
+Version: 0.1.0
+Authors@R: person("Juan", "Brandao", email = "jbf8dof@outlook.com",
+  role = c("aut", "cre"))
+Description: ccharter focus on calculating control systems in a time series
+    and plotting them as an overlay to the series.
+License: GNU AGPLv3
+LazyData: TRUE
+Imports:
+    dplyr,
+    lubridate,
+    scales,
+    ggplot2
+RoxygenNote: 5.0.1
