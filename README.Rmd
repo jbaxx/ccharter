@@ -25,6 +25,7 @@ Control Charts made easy. ccharter focus on calculating control systems in a tim
     }
     devtools::install_github("jbaxx/ccharter")
     ```
+
 # Using ccharter
 
 The ccharter package comes with two main functions: 
