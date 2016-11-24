@@ -27,7 +27,7 @@ Control Charts made easy. ccharter focus on calculating control systems in a tim
     ```
 # Using ccharter
 
-ccharter comes with two functions: 
+The ccharter package comes with two main functions: 
 
 *  `ccpoints` to calculate Control Systems points from a time series data frame
 *  `cc2plot` to plot the Control Systems points (Control Chart)
@@ -43,7 +43,6 @@ Calculating the Control Systems points
 * An example usage of `ccpoints`:
 
 ```{r}
-library(ccharter)
 # Create a random time series
 set.seed(154)
 time.series <- data.frame(t.dates = seq.Date(as.Date("2014-02-01"), as.Date("2016-08-01"), "month"),
@@ -57,36 +56,54 @@ time.series <- data.frame(t.dates = seq.Date(as.Date("2014-02-01"), as.Date("201
 
 # Execute function
 control.chart.data <- ccpoints(time.series, "t.dates", "t.values")
-print(control.chart.data)
+```
 
-# To extract only the data frame
+If we inspect the object we may find it's a list consisting in:
+
+  1. The first element is the input time series along with the calculated mean and sd for each system
+  2. The second element is the name of the dates column
+  3. The third element is the name of the values column
+
+```{r}
+# Inspecting cchart object content
+lapply(control.chart.data, head)
+```
+
+To extract the data frame, we can access it from the list in the following way:
+
+```{r eval=FALSE}
 control.chart.data[["data"]]
 ```
 
-
 Plotting the Control Systems points
+
+This is how the time series looks like:
+
+```{r echo=FALSE, fig.width=9,fig.height=4}
+g <- ggplot2::ggplot(control.chart.data[["data"]], ggplot2::aes(x = t.dates))
+
+#g <- g + ggplot2::geom_line(ggplot2::aes(y = data.mean), size = 1.2, color = "darkorange")
+#g <- g + ggplot2::geom_line(ggplot2::aes(y = data.ll), size = 1.2, color = "steelblue")
+#g <- g + ggplot2::geom_line(ggplot2::aes(y = data.ul), size = 1.2, color = "steelblue")
+
+g <- g + ggplot2::geom_line(ggplot2::aes(y = t.values), size=0.7, color = "gray44")
+g <- g + ggplot2::geom_point(ggplot2::aes(y = t.values), color = "midnightblue")
+
+g <- g + ggplot2::theme_bw()
+g <- g + ggplot2::scale_x_date(labels = scales::date_format("%b/%y"), minor_breaks = NULL, breaks = scales::date_breaks("month"))
+g <- g + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
+g <- g + ggplot2::labs(x = "Month")
+g <- g + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0))
+print(g)
+```
+
 
 * An example usage of `cc2plot`:
 
 ```{r example, fig.width=9,fig.height=4}
-library(ccharter)
-# Create a random time series
-set.seed(154)
-time.series <- data.frame(t.dates = seq.Date(as.Date("2014-02-01"), as.Date("2016-08-01"), "month"),
-               t.values = c(
-               seq(0.1, 0.8, by = 0.1) * runif(8) + 3,
-               seq(0.1, 0.7, by = 0.1) * runif(7) + 4,
-               seq(0.1, 0.7, by = 0.1) * runif(7) + 5,
-               seq(0.1, 0.4, by = 0.1) * runif(4) + 4,
-               seq(0.1, 0.5, by = 0.1) * runif(5) + 4)
-               )
-
-# Execute function
-control.chart.data <- ccpoints(time.series, "t.dates", "t.values")
-
-# Create chart
+# Passing the cchart object to the cc2plot function
 cc2plot(control.chart.data)
 ```
 
 
-For detailed functions documentation you can access the help files in R with `?ccpoints` and `?cc2plot`
+For detailed functions documentation you can access the help files in R with `?ccpoints` and `?cc2plot`.
