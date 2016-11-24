@@ -7,7 +7,7 @@
 #' 2. Standard Deviation Rule: Four points above or below SD. See points.vs.sd argument.
 #'
 #' @usage
-#' cchart(data, dates, values, points.vs.avg = 6, points.vs.sd = 4)
+#' ccpoints(data, dates, values, points.vs.avg = 6, points.vs.sd = 4)
 #' @param data The input Data Frame containing the time series.
 #' @param dates Column name for date values. Class should be date,
 #' if not, will attempt to coerce using lubridate::mdy(dates),
@@ -18,7 +18,7 @@
 #' should be above or below mean to define a system. Default to 6.
 #' @param points.vs.sd For Standard Deviation Rule, establises how many continuous points
 #' should be above or below two standard deviations to define a new system. Default to 4.
-#' @return The function will return an object of class cchart.
+#' @return The function will return an object of class ccpoints.
 #' A list including the data frame with the system points, and column names of the time series.\cr
 #' The data frame will include the submited time series and the followin new columns: \cr\cr
 #' data.mean: the mean value for each system \cr
@@ -38,14 +38,14 @@
 #'                )
 #'
 #' # Execute function
-#' control.chart.data <- cchart(time.series, "t.dates", "t.values")
+#' control.chart.data <- ccpoints(time.series, "t.dates", "t.values")
 #' print(control.chart.data)
 #'
 #' # To extract only the data frame
 #' control.chart.data[["data"]]
 #'
 #'@export
-cchart <- function(data, dates, values, points.vs.avg = 6, points.vs.sd = 4) {
+ccpoints <- function(data, dates, values, points.vs.avg = 6, points.vs.sd = 4) {
 
   if (class(data[, dates]) != "Date"){
     data[, dates] <- lubridate::mdy(data[, dates])
@@ -154,16 +154,16 @@ cchart <- function(data, dates, values, points.vs.avg = 6, points.vs.sd = 4) {
   l[["data"]] <- data[, which(names(data) %in% c(dates, values, "data.mean", "data.ll", "data.ul"))]
   l[["dates.name"]] <- dates
   l[["values.name"]] <- values
-  class(l) <- c("cchart")
+  class(l) <- c("ccpoints")
   return(l)
 }
 
 #' Plot a Control Chart.
 #' @description
-#' Plots a Control Chart. Receives as input a cchart object.
+#' Plots a Control Chart. Receives as input a ccpoints object.
 #' @usage
 #' cc2plot (data, data.title = "")
-#' @param data A cchart object. See ?ccharter::cchart function for reference.
+#' @param data A ccpoints object. See ?ccharter::ccpoints function for reference.
 #' @param data.title Title for the Control Chart plot.
 #'
 #' @examples
@@ -179,7 +179,7 @@ cchart <- function(data, dates, values, points.vs.avg = 6, points.vs.sd = 4) {
 #'                )
 #'
 #' # Execute function
-#' control.chart.data <- cchart(time.series, "t.dates", "t.values")
+#' control.chart.data <- ccpoints(time.series, "t.dates", "t.values")
 #'
 #' # Create chart
 #' cc2plot(control.chart.data)
@@ -188,8 +188,8 @@ cchart <- function(data, dates, values, points.vs.avg = 6, points.vs.sd = 4) {
 #'@export
 #'
 cc2plot <- function(data, data.title = "") {
-  if (class(data) != "cchart") {
-    stop("Expecting a cchart class object \n Details in documentation at ?cc2plot")
+  if (class(data) != "ccpoints") {
+    stop("Expecting a ccpoints class object \n Details in documentation at ?cc2plot")
   }
   #windows(width = 11, height = 5)
   g <- ggplot2::ggplot(data[["data"]], ggplot2::aes_string(x = data[["dates.name"]]))
@@ -217,5 +217,5 @@ cc2plot <- function(data, data.title = "") {
 #                       seq(0.1, 0.4, by = 0.1) * runif(4) + 4,
 #                       seq(0.1, 0.5, by = 0.1) * runif(5) + 4))
 #
-#cc2plot(cchart(rev, "dates", "val"))
+#cc2plot(ccpoints(rev, "dates", "val"))
 

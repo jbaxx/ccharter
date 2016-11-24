@@ -7,12 +7,12 @@
 cc2plot (data, data.title = "")
 }
 \arguments{
-\item{data}{A cchart object. See ?ccharter::cchart function for reference.}
+\item{data}{A ccpoints object. See ?ccharter::ccpoints function for reference.}
 
 \item{data.title}{Title for the Control Chart plot.}
 }
 \description{
-Plots a Control Chart. Receives as input a cchart object.
+Plots a Control Chart. Receives as input a ccpoints object.
 }
 \examples{
 # Create a random time series
@@ -27,7 +27,7 @@ time.series <- data.frame(t.dates = seq.Date(as.Date("2014-02-01"), as.Date("201
                )
 
 # Execute function
-control.chart.data <- cchart(time.series, "t.dates", "t.values")
+control.chart.data <- ccpoints(time.series, "t.dates", "t.values")
 
 # Create chart
 cc2plot(control.chart.data)
