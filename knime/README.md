@@ -6,8 +6,7 @@ I'll show you how the `ccharter` function can be integrated in a KNIME workflow.
 
 We'll be using use the nodes in the picture below for this example.
 
-<img src="knime_workflow.png" align="center" />
-===============================================
+![knime flow](knime_workflow.png)
 
 1.  Ensure you have installed the `ccharter` package in R and that KNIME uses your own R installation
     -   Package [installation instructions](https://github.com/jbaxx/ccharter)
