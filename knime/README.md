@@ -88,16 +88,14 @@ knime.in$"t.dates" <- as.Date(knime.in$"t.dates")
 To view the plot, right-click the <i>R View (Table)</i> node and select <i>View R: View\_:</i>
 </li>
 </ol>
-<img src="knime_workflow_view.png" align="center" />
-====================================================
+![knime flow](knime_workflow_view.PNG)
 
 <ol start="6">
 <li>
 Your result may look like this:
 </li>
 </ol>
-<img src="knime_workflow_view_plot.png" align="center" />
-=========================================================
+![knime flow](knime_workflow_view_plot.PNG)
 
 <ol start="6">
 <li>
