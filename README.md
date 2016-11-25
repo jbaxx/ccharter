@@ -16,8 +16,8 @@ Installation
     devtools::install_github("jbaxx/ccharter")
     ```
 
-    Using ccharter
-    ==============
+Using ccharter
+==============
 
 The ccharter package comes with two main functions:
 
