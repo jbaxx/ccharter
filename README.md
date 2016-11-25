@@ -97,3 +97,8 @@ cc2plot(control.chart.data)
 ![](README-example-1.png)
 
 For detailed functions documentation you can access the help files in R with `?ccpoints` and `?cc2plot`.
+
+Integration with KNIME: ccharter
+================================
+
+[Here you may find a brief guide on how to integrate the package in a KNIME workflow.](https://github.com/jbaxx/ccharter/tree/master/knime)
