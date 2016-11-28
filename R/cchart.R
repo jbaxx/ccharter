@@ -47,16 +47,44 @@
 #'@export
 ccpoints <- function(data, dates, values, points.vs.avg = 6, points.vs.sd = 4) {
 
+  ######
+  #1. Data Preparation Begins
+  ######
   if (class(data[, dates]) != "Date"){
-    data[, dates] <- lubridate::mdy(data[, dates])
+    fechas <- tryCatch(lubridate::ymd( data[, dates]), warning = function(e) "warning")
+
+    if(class(fechas) == "character") {
+      fechas <- tryCatch(lubridate::mdy( data[, dates]), warning = function(e) "warning")
+    } else if(class(fechas) == "character") {
+      fechas <- tryCatch(lubridate::ymd( data[, dates]), warning = function(e) "warning")
+    } else if(class(fechas) == "character"){
+      fechas <- tryCatch(lubridate::myd( data[, dates]), warning = function(e) "warning")
+    } else if(class(fechas) == "character"){
+      fechas <- tryCatch(lubridate::dmy( data[, dates]), warning = function(e) "warning")
+    } else if(class(fechas) == "character"){
+      fechas <- tryCatch(lubridate::dym( data[, dates]), warning = function(e) "warning")
+    }
+
+    if (class(fechas) == "character"){
+      stop("Dates format not supported. Please review function documentation: ?ccpoints")
+    }
+
+
+    data[, dates] <- fechas
+    rm(fechas)
   }
+
+  # Order dataset in ascendant dates
+  data <- data[order(data[, dates]), ]
 
   if (class(data[, values]) != "numeric"){
     data[, values] <- as.numeric(data[, values])
   }
 
-  # Order dataset in ascendant dates
-  data <- data[order(data[, dates]), ]
+  ######
+  #1. Data Preparation Ends
+  ######
+
   # Calculate mean and standard deviation of first break (first six values)
   data.mean <- mean(data[, values][1:6])
   data.sd   <-   sd(data[, values][1:6])
