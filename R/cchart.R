@@ -50,6 +50,8 @@ ccpoints <- function(data, dates, values, points.vs.avg = 6, points.vs.sd = 4) {
   ######
   #1. Data Preparation Begins
   ######
+
+  #DATE DATA PREPARATION
   if (class(data[, dates]) != "Date"){
     fechas <- tryCatch(lubridate::ymd( data[, dates]), warning = function(e) "warning")
 
@@ -77,6 +79,7 @@ ccpoints <- function(data, dates, values, points.vs.avg = 6, points.vs.sd = 4) {
   # Order dataset in ascendant dates
   data <- data[order(data[, dates]), ]
 
+  #NUMERIC DATA PREPARATION
   #Remove commas if present
   data[, values] <- gsub(",", "", data[, values])
 
@@ -88,6 +91,13 @@ ccpoints <- function(data, dates, values, points.vs.avg = 6, points.vs.sd = 4) {
       data[, values] <- as.numeric(data[, values])
     }
   }
+
+  #MISSING VALUES HANDLING
+  if(nrow(data[!complete.cases(data[, c(dates, values)]), ]) > 0){
+    warning("Data Frame contained missing values and were removed.")
+    missing_values <- data[!complete.cases(data[, c(dates, values)]), ]
+    data <- data[complete.cases(data[, c(dates, values)]), ]
+  } else {missing_values <- NA}
 
   ######
   #1. Data Preparation Ends
@@ -194,6 +204,8 @@ ccpoints <- function(data, dates, values, points.vs.avg = 6, points.vs.sd = 4) {
   l[["dates.name"]] <- dates
   l[["values.name"]] <- values
   l[["systems_count"]] <- length(unique(data$data.mean))
+  l[["missing_values"]] <- missing_values
+
   class(l) <- c("ccpoints")
   return(l)
 }
