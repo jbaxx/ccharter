@@ -77,8 +77,13 @@ ccpoints <- function(data, dates, values, points.vs.avg = 6, points.vs.sd = 4) {
   # Order dataset in ascendant dates
   data <- data[order(data[, dates]), ]
 
-  if (class(data[, values]) != "numeric"){
-    data[, values] <- as.numeric(data[, values])
+  #Data handling, specially for factors
+  if (!is.numeric(data[, values])){
+    if(is.factor(data[, values])){
+      data[, values] <- as.numeric(levels(data[, values]))[data[, values]]
+    } else {
+      data[, values] <- as.numeric(data[, values])
+    }
   }
 
   ######
