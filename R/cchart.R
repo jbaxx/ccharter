@@ -81,7 +81,7 @@ ccpoints <- function(data, dates, values, points.vs.avg = 6, points.vs.sd = 4) {
 
   #NUMERIC DATA PREPARATION
   #Remove commas if present
-  data[, values] <- gsub(",", "", data[, values])
+  data[, values] <- as.numeric(gsub(",", "", data[, values]))
 
   #Data handling for values data points, specially for factors coercion
   if (!is.numeric(data[, values])){
