@@ -81,7 +81,7 @@ ccpoints <- function(data, dates, values, points.vs.avg = 6, points.vs.sd = 4) {
 
   #NUMERIC DATA PREPARATION
   #Remove commas if present
-  data[, values] <- gsub(",", "", data[, values])
+  data[, values] <- as.numeric(gsub(",", "", data[, values]))
 
   #Data handling for values data points, specially for factors coercion
   if (!is.numeric(data[, values])){
@@ -200,11 +200,26 @@ ccpoints <- function(data, dates, values, points.vs.avg = 6, points.vs.sd = 4) {
   #Function Return
 
   l<-list()
-  l[["data"]] <- data[, which(names(data) %in% c(dates, values, "data.mean", "data.ll", "data.ul"))]
+  l[["data"]] <- data#[, which(names(data) %in% c(dates, values, "data.mean", "data.ll", "data.ul"))]
   l[["dates.name"]] <- dates
   l[["values.name"]] <- values
   l[["systems_count"]] <- length(unique(data$data.mean))
   l[["missing_values"]] <- missing_values
+
+  # Subset only last system
+  last <- data[which(data$data.mean == unique(data$data.mean)[length(unique(data$data.mean))]), ]
+  l[["date_last_break"]] <- last[1, dates]
+  l[["weeks_since_last_break"]] <- floor(difftime(Sys.Date(), last[1, dates], units = "weeks"))
+
+  next_break <- c("Next system expected to break positive", "Next system expected to break negative")
+  l[["next_break"]] <- next_break[as.numeric(count.p < count.n) + 1]
+
+  next_break_mean <- c(points.vs.avg - count.p, points.vs.avg - count.n)
+  next_break_sd <- c(points.vs.sd - count.sd.p, points.vs.sd - count.sd.n)
+
+  l[["next_break_values"]] <- c("Continous points vs mean: " = next_break_mean[as.numeric(count.p < count.n) + 1],
+                                "Continuous points vs 2 SD: " = next_break_sd[as.numeric(count.sd.p < count.sd.n) + 1])
+
 
   class(l) <- c("ccpoints")
   return(l)
