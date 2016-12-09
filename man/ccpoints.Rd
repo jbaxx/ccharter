@@ -4,7 +4,8 @@
 \alias{ccpoints}
 \title{Calculates Control Systems points}
 \usage{
-ccpoints(data, dates, values, points.vs.avg = 6, points.vs.sd = 4)
+ccpoints(data, dates, values, points.vs.avg = 6, points.vs.sd = 4,
+         date.type = TRUE, already.ordered = FALSE)
 }
 \arguments{
 \item{data}{The input Data Frame containing the time series.}
@@ -21,6 +22,11 @@ should be above or below mean to define a system. Default to 6.}
 
 \item{points.vs.sd}{For Standard Deviation Rule, establises how many continuous points
 should be above or below two standard deviations to define a new system. Default to 4.}
+
+\item{date.type}{State if observations are based on dates. Defaults to TRUE.}
+
+\item{already.ordered}{Tell the function if the data is already ordered. Defaults to FALSE.
+The function will attempt to order it.}
 }
 \value{
 The function will return an object of class ccpoints.
