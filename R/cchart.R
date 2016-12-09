@@ -279,9 +279,14 @@ cc2plot <- function(data, data.title = "") {
   g <- g + ggplot2::geom_line(ggplot2::aes_string(y = data[["values.name"]]), size=0.6, color = "gray44")
   g <- g + ggplot2::geom_point(ggplot2::aes_string(y = data[["values.name"]]), color = "midnightblue")
   g <- g + ggplot2::theme_bw()
-  g <- g + ggplot2::scale_x_date(labels = scales::date_format("%b/%y"), minor_breaks = NULL, breaks = scales::date_breaks("month"))
+  if(inherits(data[["data"]][, which(colnames(data[["data"]]) %in% data[["dates.name"]])], "Date")){
+    g <- g + ggplot2::scale_x_date(labels = scales::date_format("%b/%y"), minor_breaks = NULL, breaks = scales::date_breaks("month"))
+  } else if(inherits(data[["data"]][, which(colnames(data[["data"]]) %in% data[["dates.name"]])], "numeric") |
+            inherits(data[["data"]][, which(colnames(data[["data"]]) %in% data[["dates.name"]])], "integer")){
+    g <- g + ggplot2::scale_x_continuous(breaks = data[["data"]][, which(colnames(data[["data"]]) %in% data[["dates.name"]])] )#minor_breaks = NULL)
+  }
   g <- g + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
-  g <- g + ggplot2::labs(x = "Month")
+  g <- g + ggplot2::labs(x = "Observations")
   g <- g + ggplot2::ggtitle(data.title)
   g <- g + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0))
   print(g)
