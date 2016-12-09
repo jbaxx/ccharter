@@ -7,7 +7,8 @@
 #' 2. Standard Deviation Rule: Four points above or below SD. See points.vs.sd argument.
 #'
 #' @usage
-#' ccpoints(data, dates, values, points.vs.avg = 6, points.vs.sd = 4)
+#' ccpoints(data, dates, values, points.vs.avg = 6, points.vs.sd = 4,
+#'          date.type = TRUE, already.ordered = FALSE)
 #' @param data The input Data Frame containing the time series.
 #' @param dates Column name for date values. Class should be date,
 #' if not, will attempt to coerce using lubridate::mdy(dates),
@@ -18,6 +19,9 @@
 #' should be above or below mean to define a system. Default to 6.
 #' @param points.vs.sd For Standard Deviation Rule, establises how many continuous points
 #' should be above or below two standard deviations to define a new system. Default to 4.
+#' @param date.type State if observations are based on dates. Defaults to TRUE.
+#' @param already.ordered Tell the function if the data is already ordered. Defaults to FALSE.
+#' The function will attempt to order it.
 #' @return The function will return an object of class ccpoints.
 #' A list including the data frame with the system points, and column names of the time series.\cr
 #' The data frame will include the submited time series and the followin new columns: \cr\cr
@@ -45,12 +49,13 @@
 #' control.chart.data[["data"]]
 #'
 #'@export
-ccpoints <- function(data, dates, values, points.vs.avg = 6, points.vs.sd = 4) {
+ccpoints <- function(data, dates, values, points.vs.avg = 6, points.vs.sd = 4,
+                     date.type = TRUE, already.ordered = FALSE) {
 
   ######
   #1. Data Preparation Begins
   ######
-
+  if(date.type){
   #DATE DATA PREPARATION
   if (class(data[, dates]) != "Date"){
     fechas <- tryCatch(lubridate::ymd( data[, dates]), warning = function(e) "warning")
@@ -68,16 +73,20 @@ ccpoints <- function(data, dates, values, points.vs.avg = 6, points.vs.sd = 4) {
     }
 
     if (class(fechas) == "character"){
-      stop("Dates format not supported. Please review function documentation: ?ccpoints")
+      stop("Dates format not supported. Please review function documentation: ?ccpoints.
+           If you're supplying a non-date column, change date.type parameter to FALSE")
     }
 
 
     data[, dates] <- fechas
     rm(fechas)
   }
+  }
 
+  if(!already.ordered){
   # Order dataset in ascendant dates
   data <- data[order(data[, dates]), ]
+  }
 
   #NUMERIC DATA PREPARATION
   #Remove commas if present
@@ -208,8 +217,12 @@ ccpoints <- function(data, dates, values, points.vs.avg = 6, points.vs.sd = 4) {
 
   # Subset only last system
   last <- data[which(data$data.mean == unique(data$data.mean)[length(unique(data$data.mean))]), ]
-  l[["date_last_break"]] <- last[1, dates]
+  l[["point_last_break"]] <- last[1, dates]
+  if(date.type){
   l[["weeks_since_last_break"]] <- floor(difftime(Sys.Date(), last[1, dates], units = "weeks"))
+  } else {
+    l[["weeks_since_last_break"]] <- "No Date data type provided"
+  }
 
   next_break <- c("Next system expected to break positive", "Next system expected to break negative")
   l[["next_break"]] <- next_break[as.numeric(count.p < count.n) + 1]
