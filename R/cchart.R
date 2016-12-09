@@ -52,6 +52,14 @@
 ccpoints <- function(data, dates, values, points.vs.avg = 6, points.vs.sd = 4,
                      date.type = TRUE, already.ordered = FALSE) {
 
+  if(nrow(data) <= 6){
+    stop("Not enough data points, 6 or less supplied")
+  }
+
+  if(nrow(data) > 6 & nrow(data) <= 12){
+    warning("Between 6 and 12 data points supplied, function executed but may not return system breaks")
+  }
+
   ######
   #1. Data Preparation Begins
   ######
