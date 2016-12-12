@@ -217,7 +217,7 @@ ccpoints <- function(data, dates, values, points.vs.avg = 6, points.vs.sd = 4,
   #Function Return
 
   l<-list()
-  l[["data"]] <- data#[, which(names(data) %in% c(dates, values, "data.mean", "data.ll", "data.ul"))]
+  l[["data"]] <- data[, which(names(data) %in% c(dates, values, "data.mean", "data.ll", "data.ul"))]
   l[["dates.name"]] <- dates
   l[["values.name"]] <- values
   l[["systems_count"]] <- length(unique(data$data.mean))
