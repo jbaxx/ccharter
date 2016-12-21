@@ -76,5 +76,14 @@ cc3plot <- function(data, data.title = "") {
   print(g)
 }
 
+ap <- read.csv("~/ts_val.csv", strip.white = T, stringsAsFactors = F)
+ap <- cbind(eje = c(1:nrow(ap)), ap)
+
+
+
+control.chart.data <- ccpoints2(ap, "eje", "t.values", date.type = F)
+print(control.chart.data)
+windows()
+cc2plot(control.chart.data)
 
 
