@@ -50,12 +50,30 @@ for (i in 1:length(unique(data$data.mean))){
 }
 
 
-last <- data[which(data$data.mean == unique(data$data.mean)[length(unique(data$data.mean))]), ]
-l[["point_last_break"]] <- last[1, dates]
-if(date.type){
-  l[["weeks_since_last_break"]] <- floor(difftime(Sys.Date(), last[1, dates], units = "weeks"))
-} else {
-  l[["weeks_since_last_break"]] <- "No Date data type provided"
+library(plot)
+cc3plot <- function(data, data.title = "") {
+  if (class(data) != "ccpoints") {
+    stop("Expecting a ccpoints class object \n Details in documentation at ?cc2plot")
+  }
+  #windows(width = 11, height = 5)
+  g <- ggplot2::ggplot(data[["data"]], ggplot2::aes_string(x = data[["dates.name"]]))
+  g <- g + ggplot2::geom_line(ggplot2::aes(y = data.mean), size = 1.2, color = "darkorange")
+  g <- g + ggplot2::geom_line(ggplot2::aes(y = data.ll), size = 1.2, color = "steelblue")
+  g <- g + ggplot2::geom_line(ggplot2::aes(y = data.ul), size = 1.2, color = "steelblue")
+  g <- g + ggplot2::geom_line(ggplot2::aes_string(y = data[["values.name"]]), size=0.6, color = "gray44")
+  g <- g + ggplot2::geom_point(ggplot2::aes_string(y = data[["values.name"]]), color = "midnightblue")
+  g <- g + ggplot2::theme_bw()
+  if(inherits(data[["data"]][, which(colnames(data[["data"]]) %in% data[["dates.name"]])], "Date")){
+    g <- g + ggplot2::scale_x_date(labels = scales::date_format("%b/%y"), minor_breaks = NULL, breaks = scales::date_breaks("month"))
+  } else if(inherits(data[["data"]][, which(colnames(data[["data"]]) %in% data[["dates.name"]])], "numeric") |
+            inherits(data[["data"]][, which(colnames(data[["data"]]) %in% data[["dates.name"]])], "integer")){
+    g <- g + ggplot2::scale_x_continuous(breaks = data[["data"]][, which(colnames(data[["data"]]) %in% data[["dates.name"]])] )#minor_breaks = NULL)
+  }
+  g <- g + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
+  g <- g + ggplot2::labs(x = "Observations")
+  g <- g + ggplot2::ggtitle(data.title)
+  g <- g + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0))
+  print(g)
 }
 
 
