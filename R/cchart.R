@@ -385,9 +385,15 @@ ccpoints2 <- function(data, dates, values, points.vs.avg = 7, points.vs.sd = 4,
   #1. Data Preparation Ends
   ######
 
-  # Calculate mean and standard deviation of first break (first six values)
+  # Calculate mean and standard deviation of ALL DATASET
   data.mean <- mean(data[, values])
   data.sd   <-   sd(data[, values])
+  # out of control points
+  data$ooc <- TRUE
+  data$ooc[which(data[, values] > data.mean + 3 * data.sd | data[, values] < data.mean - 3 * data.sd)] <- FALSE
+  # Recalculate mean and sd all dataset
+  data.mean <- mean(data[, values][data$ooc])
+  data.sd   <-   sd(data[, values][data$ooc])
   # Create columns to store breaks' mean, standard deviation lower and upper limits
   data$data.mean <- 0
   data$data.ll <- 0
@@ -401,6 +407,7 @@ ccpoints2 <- function(data, dates, values, points.vs.avg = 7, points.vs.sd = 4,
   # Internal counters for standard deviation rule
   count.sd.p <- 0
   count.sd.n <- 0
+  #
 
 
   for (i in 1:nrow(data)) {
@@ -411,28 +418,32 @@ ccpoints2 <- function(data, dates, values, points.vs.avg = 7, points.vs.sd = 4,
 
     # MEAN RULE: SIX CONTINUOUS POINTS ABOVE OR BELOW MEAN
     # If point above mean, upper counter + 1 and reset lower counter
-    if (data[, values][i] > data.mean ) {
+    if (data[, values][i] > data.mean & data[, "ooc"][i] ) {
       count.p <- count.p + 1
       data$new.count[i] <- count.p
       count.n <- 0
       # If point below mean, lower counter + 1 and reset upper counter
-    } else if (data[, values][i] < data.mean ) {
+    } else if (data[, values][i] < data.mean & data[, "ooc"][i]  ) {
       count.n <- count.n + 1
       data$new.count[i] <- count.n
       count.p <- 0
+    } else {
+      if(count.p > count.n) {data$new.count[i] <- count.p}
+      if(count.p < count.n) {data$new.count[i] <- count.n}
     }
     # If one of the counters have reached the established break point
     # Then all these past points represents a new system
     # Calculate mean and standard deviation of this system
     if (count.p == points.vs.avg | count.n == points.vs.avg) {
-      data.mean <- mean(data[, values][(i - (points.vs.avg - 1)):i])
+      data.mean <- mean(data[, values][(i - (points.vs.avg - 1)):i][data$ooc[(i - (points.vs.avg - 1)):i]])
       if (i < nrow(data)) {
-        data.sd <- sd(data[, values][(i - (points.vs.avg - 1)):i])
+        data.sd <- sd(data[, values][(i - (points.vs.avg - 1)):i][data$ooc[(i - (points.vs.avg - 1)):i]])
       }
       # Rewrite mean and standard deviation values for this new system
-      data$data.mean[(i - (points.vs.avg - 1)):i] <- data.mean
-      data$data.ll[(i - (points.vs.avg - 1)):i] <- data.mean - data.sd
-      data$data.ul[(i - (points.vs.avg - 1)):i] <- data.mean + data.sd
+      alpha <- sum(as.numeric(!data$ooc[(i - (points.vs.avg - 1)):i]))
+      data$data.mean[( (i - alpha) - (points.vs.avg - 1)):i] <- data.mean
+      data$data.ll[((i - alpha) - (points.vs.avg - 1)):i] <- data.mean - data.sd
+      data$data.ul[((i - alpha) - (points.vs.avg - 1)):i] <- data.mean + data.sd
       # Reset all the counters
       count.p <- 0
       count.n <- 0
@@ -446,9 +457,9 @@ ccpoints2 <- function(data, dates, values, points.vs.avg = 7, points.vs.sd = 4,
   #Function Return
   for (i in 1:length(unique(data$data.mean))){
     d_set <- data[data$data.mean == unique(data$data.mean)[i],]
-    data[data$data.mean == unique(data$data.mean)[i], c("data.mean")] <- mean(d_set$t.values)
-    data[data$data.mean == unique(data$data.mean)[i], c("data.ll")] <- mean(d_set$t.values) - sd(d_set$t.values)
-    data[data$data.mean == unique(data$data.mean)[i], c("data.ul")] <- mean(d_set$t.values) + sd(d_set$t.values)
+    data[data$data.mean == unique(data$data.mean)[i], c("data.mean")] <- mean(d_set[, values][d_set$ooc])
+    data[data$data.mean == unique(data$data.mean)[i], c("data.ll")] <- mean(d_set[, values][d_set$ooc]) - sd(d_set[, values][d_set$ooc])
+    data[data$data.mean == unique(data$data.mean)[i], c("data.ul")] <- mean(d_set[, values][d_set$ooc]) + sd(d_set[, values][d_set$ooc])
     rm(d_set)
   }
 
@@ -477,7 +488,7 @@ ccpoints2 <- function(data, dates, values, points.vs.avg = 7, points.vs.sd = 4,
   l[["next_break_values"]] <- c("Continous points vs mean: " = next_break_mean[as.numeric(count.p < count.n) + 1],
                                 "Continuous points vs 2 SD: " = next_break_sd[as.numeric(count.sd.p < count.sd.n) + 1])
 
-  l[["new_data"]] <-
+  #l[["new_data"]] <-
 
 
   class(l) <- c("ccpoints")
