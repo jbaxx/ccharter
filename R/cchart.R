@@ -312,3 +312,174 @@ cc2plot <- function(data, data.title = "") {
 #
 #cc2plot(ccpoints(rev, "dates", "val"))
 
+
+
+ccpoints2 <- function(data, dates, values, points.vs.avg = 7, points.vs.sd = 4,
+                     date.type = TRUE, already.ordered = FALSE) {
+
+  if(nrow(data) <= 12){
+    stop("Not enough data points, 6 or less supplied")
+  }
+
+  if(nrow(data) > 12 & nrow(data) <= 20){
+    warning("Between 12 and 20 data points supplied, function executed but may not return system breaks")
+  }
+
+  ######
+  #1. Data Preparation Begins
+  ######
+  if(date.type){
+    #DATE DATA PREPARATION
+    if (class(data[, dates]) != "Date"){
+      fechas <- tryCatch(lubridate::ymd( data[, dates]), warning = function(e) "warning")
+
+      if(class(fechas) == "character") {
+        fechas <- tryCatch(lubridate::mdy( data[, dates]), warning = function(e) "warning")
+      } else if(class(fechas) == "character") {
+        fechas <- tryCatch(lubridate::ymd( data[, dates]), warning = function(e) "warning")
+      } else if(class(fechas) == "character"){
+        fechas <- tryCatch(lubridate::myd( data[, dates]), warning = function(e) "warning")
+      } else if(class(fechas) == "character"){
+        fechas <- tryCatch(lubridate::dmy( data[, dates]), warning = function(e) "warning")
+      } else if(class(fechas) == "character"){
+        fechas <- tryCatch(lubridate::dym( data[, dates]), warning = function(e) "warning")
+      }
+
+      if (class(fechas) == "character"){
+        stop("Dates format not supported. Please review function documentation: ?ccpoints.
+             If you're supplying a non-date column, change date.type parameter to FALSE")
+      }
+
+
+      data[, dates] <- fechas
+      rm(fechas)
+      }
+  }
+
+  if(!already.ordered){
+    # Order dataset in ascendant dates
+    data <- data[order(data[, dates]), ]
+  }
+
+  #NUMERIC DATA PREPARATION
+  #Remove commas if present
+  data[, values] <- as.numeric(gsub(",", "", data[, values]))
+
+  #Data handling for values data points, specially for factors coercion
+  if (!is.numeric(data[, values])){
+    if(is.factor(data[, values])){
+      data[, values] <- as.numeric(levels(data[, values]))[data[, values]]
+    } else {
+      data[, values] <- as.numeric(data[, values])
+    }
+  }
+
+  #MISSING VALUES HANDLING
+  if(nrow(data[!complete.cases(data[, c(dates, values)]), ]) > 0){
+    warning("Data Frame contained missing values and were removed.")
+    missing_values <- data[!complete.cases(data[, c(dates, values)]), ]
+    data <- data[complete.cases(data[, c(dates, values)]), ]
+  } else {missing_values <- NA}
+
+  ######
+  #1. Data Preparation Ends
+  ######
+
+  # Calculate mean and standard deviation of first break (first six values)
+  data.mean <- mean(data[, values])
+  data.sd   <-   sd(data[, values])
+  # Create columns to store breaks' mean, standard deviation lower and upper limits
+  data$data.mean <- 0
+  data$data.ll <- 0
+  data$data.ul <- 0
+  # Counters to track break points along dataset
+  data$new.count <- 0
+  data$new.count.sd <- 0
+  # Internal counters for mean rule
+  count.p <- 0
+  count.n <- 0
+  # Internal counters for standard deviation rule
+  count.sd.p <- 0
+  count.sd.n <- 0
+
+
+  for (i in 1:nrow(data)) {
+    # Store mean and sd for current point in the loop
+    data$data.mean[i] <- data.mean
+    data$data.ll[i] <- data.mean - data.sd
+    data$data.ul[i] <- data.mean + data.sd
+
+    # MEAN RULE: SIX CONTINUOUS POINTS ABOVE OR BELOW MEAN
+    # If point above mean, upper counter + 1 and reset lower counter
+    if (data[, values][i] > data.mean ) {
+      count.p <- count.p + 1
+      data$new.count[i] <- count.p
+      count.n <- 0
+      # If point below mean, lower counter + 1 and reset upper counter
+    } else if (data[, values][i] < data.mean ) {
+      count.n <- count.n + 1
+      data$new.count[i] <- count.n
+      count.p <- 0
+    }
+    # If one of the counters have reached the established break point
+    # Then all these past points represents a new system
+    # Calculate mean and standard deviation of this system
+    if (count.p == points.vs.avg | count.n == points.vs.avg) {
+      data.mean <- mean(data[, values][(i - (points.vs.avg - 1)):i])
+      if (i < nrow(data)) {
+        data.sd <- sd(data[, values][(i - (points.vs.avg - 1)):i])
+      }
+      # Rewrite mean and standard deviation values for this new system
+      data$data.mean[(i - (points.vs.avg - 1)):i] <- data.mean
+      data$data.ll[(i - (points.vs.avg - 1)):i] <- data.mean - data.sd
+      data$data.ul[(i - (points.vs.avg - 1)):i] <- data.mean + data.sd
+      # Reset all the counters
+      count.p <- 0
+      count.n <- 0
+      count.sd.p <- 0
+      count.sd.n <- 0
+    }
+
+
+  }
+
+  #Function Return
+  for (i in 1:length(unique(data$data.mean))){
+    d_set <- data[data$data.mean == unique(data$data.mean)[i],]
+    data[data$data.mean == unique(data$data.mean)[i], c("data.mean")] <- mean(d_set$t.values)
+    data[data$data.mean == unique(data$data.mean)[i], c("data.ll")] <- mean(d_set$t.values) - sd(d_set$t.values)
+    data[data$data.mean == unique(data$data.mean)[i], c("data.ul")] <- mean(d_set$t.values) + sd(d_set$t.values)
+    rm(d_set)
+  }
+
+  l<-list()
+  l[["data"]] <- data#[, which(names(data) %in% c(dates, values, "data.mean", "data.ll", "data.ul"))]
+  l[["dates.name"]] <- dates
+  l[["values.name"]] <- values
+  l[["systems_count"]] <- length(unique(data$data.mean))
+  l[["missing_values"]] <- missing_values
+
+  # Subset only last system
+  last <- data[which(data$data.mean == unique(data$data.mean)[length(unique(data$data.mean))]), ]
+  l[["point_last_break"]] <- last[1, dates]
+  if(date.type){
+    l[["weeks_since_last_break"]] <- floor(difftime(Sys.Date(), last[1, dates], units = "weeks"))
+  } else {
+    l[["weeks_since_last_break"]] <- "No Date data type provided"
+  }
+
+  next_break <- c("Next system expected to break positive", "Next system expected to break negative")
+  l[["next_break"]] <- next_break[as.numeric(count.p < count.n) + 1]
+
+  next_break_mean <- c(points.vs.avg - count.p, points.vs.avg - count.n)
+  next_break_sd <- c(points.vs.sd - count.sd.p, points.vs.sd - count.sd.n)
+
+  l[["next_break_values"]] <- c("Continous points vs mean: " = next_break_mean[as.numeric(count.p < count.n) + 1],
+                                "Continuous points vs 2 SD: " = next_break_sd[as.numeric(count.sd.p < count.sd.n) + 1])
+
+  l[["new_data"]] <-
+
+
+  class(l) <- c("ccpoints")
+  return(l)
+}
