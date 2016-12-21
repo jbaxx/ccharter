@@ -9,16 +9,6 @@ time.series <- data.frame(t.dates = seq.Date(as.Date("2014-02-01"), as.Date("201
                             seq(0.1, 0.5, by = 0.1) * runif(5) + 4)
 )
 
-# Execute function
-control.chart.data <- ccpoints(time.series, "t.dates", "t.values")
-print(control.chart.data)
-
-windows()
-cc2plot(control.chart.data)
-# To extract only the data frame
-control.chart.data[["data"]]
-
-time.series
 
 t <- cbind(eje = c(1:nrow(time.series)), time.series)
 t <- t[,-2]
@@ -43,40 +33,15 @@ data <- control.chart.data[["data"]]
 
 for (i in 1:length(unique(data$data.mean))){
   d_set <- data[data$data.mean == unique(data$data.mean)[i],]
-  data[data$data.mean == unique(data$data.mean)[i], c("data.mean")] <- mean(d_set$t.values)
-  data[data$data.mean == unique(data$data.mean)[i], c("data.ll")] <- mean(d_set$t.values) - sd(d_set$t.values)
-  data[data$data.mean == unique(data$data.mean)[i], c("data.ul")] <- mean(d_set$t.values) + sd(d_set$t.values)
+  data[data$data.mean == unique(data$data.mean)[i], c("data.mean")] <- mean(data[, values])
+  data[data$data.mean == unique(data$data.mean)[i], c("data.ll")] <- mean(data[, values]) - sd(data[, values])
+  data[data$data.mean == unique(data$data.mean)[i], c("data.ul")] <- mean(data[, values]) + sd(data[, values])
   rm(d_set)
 }
 
 
-library(plot)
-cc3plot <- function(data, data.title = "") {
-  if (class(data) != "ccpoints") {
-    stop("Expecting a ccpoints class object \n Details in documentation at ?cc2plot")
-  }
-  #windows(width = 11, height = 5)
-  g <- ggplot2::ggplot(data[["data"]], ggplot2::aes_string(x = data[["dates.name"]]))
-  g <- g + ggplot2::geom_line(ggplot2::aes(y = data.mean), size = 1.2, color = "darkorange")
-  g <- g + ggplot2::geom_line(ggplot2::aes(y = data.ll), size = 1.2, color = "steelblue")
-  g <- g + ggplot2::geom_line(ggplot2::aes(y = data.ul), size = 1.2, color = "steelblue")
-  g <- g + ggplot2::geom_line(ggplot2::aes_string(y = data[["values.name"]]), size=0.6, color = "gray44")
-  g <- g + ggplot2::geom_point(ggplot2::aes_string(y = data[["values.name"]]), color = "midnightblue")
-  g <- g + ggplot2::theme_bw()
-  if(inherits(data[["data"]][, which(colnames(data[["data"]]) %in% data[["dates.name"]])], "Date")){
-    g <- g + ggplot2::scale_x_date(labels = scales::date_format("%b/%y"), minor_breaks = NULL, breaks = scales::date_breaks("month"))
-  } else if(inherits(data[["data"]][, which(colnames(data[["data"]]) %in% data[["dates.name"]])], "numeric") |
-            inherits(data[["data"]][, which(colnames(data[["data"]]) %in% data[["dates.name"]])], "integer")){
-    g <- g + ggplot2::scale_x_continuous(breaks = data[["data"]][, which(colnames(data[["data"]]) %in% data[["dates.name"]])] )#minor_breaks = NULL)
-  }
-  g <- g + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
-  g <- g + ggplot2::labs(x = "Observations")
-  g <- g + ggplot2::ggtitle(data.title)
-  g <- g + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0))
-  print(g)
-}
 
-ap <- read.csv("~/ts_val.csv", strip.white = T, stringsAsFactors = F)
+ap <- read.csv("~/cc_test/ts_val.csv", strip.white = T, stringsAsFactors = F)
 ap <- cbind(eje = c(1:nrow(ap)), ap)
 
 
@@ -87,3 +52,32 @@ windows()
 cc2plot(control.chart.data)
 
 
+epa <- data.frame(ax = c(1:length(rep(e[1:6,2], 12))), val = rep(e[1:6,2], 12))
+epa[14, 2] <- 3.7
+epa[60:65, 2] <- c(3.15, 3.16, 3.17, 3.16, 3.15, 3.16)
+
+control.chart.data <- ccpoints2(epa, "ax", "val", date.type = F)
+print(control.chart.data)
+windows()
+cc2plot(control.chart.data)
+
+
+
+
+truena <- read.csv("~/cc_test/truena.csv", strip.white = T, stringsAsFactors = F)
+colnames(truena) <- c("ejex", "ejey")
+control.chart.data <- ccpoints2(truena, "ejex", "ejey", date.type = F)
+windows()
+cc2plot(control.chart.data)
+
+#Adding ooc
+truena_v2 <- truena
+truena_v2[6, "ejey"] <- 20
+control.chart.data <- ccpoints2(truena_v2, "ejex", "ejey", date.type = F)
+windows()
+cc2plot(control.chart.data)
+
+
+
+
+mean(truena[1:15, "ejey"]) + 3 * sd(truena[1:15, "ejey"])
