@@ -80,4 +80,46 @@ cc2plot(control.chart.data)
 
 
 
-mean(truena[1:15, "ejey"]) + 3 * sd(truena[1:15, "ejey"])
+control.chart.data <- ccpoints2(ga.data, "date", "sessions", date.type = F)
+windows()
+cc2plot(control.chart.data)
+
+
+bucket_list <- lapply(which(colnames(ga.data) %in% c("users", "avgTimeOnPage", "hits", "avgSessionDuration")),
+                      function(x) ccpoints2(ga.data,
+                                           names(ga.data[1]),
+                                           names(ga.data[x]), points.vs.avg = 5, date.type = F))
+vector_index <- sapply(c("users", "avgTimeOnPage", "hits", "avgSessionDuration"),
+                       function(x) which(colnames(ga.data) %in% x))
+bucket_list <- lapply(vector_index,
+                      function(x) ccpoints2(ga.data,
+                                            names(ga.data[1]),
+                                            names(ga.data[x]), points.vs.avg = 5, date.type = F))
+
+windows()
+a <- cc2plot(bucket_list[[1]], data.title = "users")
+b <- cc2plot(bucket_list[[2]], data.title = "avgTimeOnPage")
+c <- cc2plot(bucket_list[[3]], data.title = "hits")
+d <- cc2plot(bucket_list[[4]], data.title = "avgSessionDuration")
+grid.arrange(a, b, c, d, ncol = 1, nrow = 4)
+
+
+
+
+
+set.seed(154)
+time.series <- data.frame(t.dates = seq.Date(as.Date("2014-02-01"), as.Date("2016-08-01"), "month"),
+                          t.values = c(
+                            seq(0.1, 0.8, by = 0.1) * runif(8) + 3,
+                            seq(0.1, 0.7, by = 0.1) * runif(7) + 4,
+                            seq(0.1, 0.7, by = 0.1) * runif(7) + 5,
+                            seq(0.1, 0.4, by = 0.1) * runif(4) + 4,
+                            seq(0.1, 0.5, by = 0.1) * runif(5) + 4)
+)
+
+# Execute function
+control.chart.data <- ccpoints(time.series, "t.dates", "t.values")
+windows()
+cc2plot(control.chart.data)
+
+
