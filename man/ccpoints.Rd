@@ -4,15 +4,13 @@
 \alias{ccpoints}
 \title{Calculates Control Systems points}
 \usage{
-ccpoints(data, dates, values, points.vs.avg = 6, points.vs.sd = 4,
+ccpoints(data, dates, values, points.vs.avg = 7,
          date.type = TRUE, already.ordered = FALSE)
 }
 \arguments{
-\item{data}{The input Data Frame containing the time series.}
+\item{data}{The input Data Frame.}
 
-\item{dates}{Column name for date values. Class should be date,
-if not, will attempt to coerce using lubridate::mdy(dates),
-assuming format is month-day-year.}
+\item{dates}{Column name for date or ordering variable.}
 
 \item{values}{Column name for data points values. Class should be numeric,
 if not, will attempt to coerce.}
@@ -20,18 +18,16 @@ if not, will attempt to coerce.}
 \item{points.vs.avg}{For Mean Rule, establishes how many continuous points
 should be above or below mean to define a system. Default to 6.}
 
-\item{points.vs.sd}{For Standard Deviation Rule, establises how many continuous points
-should be above or below two standard deviations to define a new system. Default to 4.}
+\item{date.type}{States if observations are based on dates. Defaults to TRUE. If TRUE, will attempt to coerce
+to a date format using extensive use of lubridate package dates formats.}
 
-\item{date.type}{State if observations are based on dates. Defaults to TRUE.}
-
-\item{already.ordered}{Tell the function if the data is already ordered. Defaults to FALSE.
+\item{already.ordered}{Tells the function if the data is already ordered. Defaults to FALSE.
 The function will attempt to order it.}
 }
 \value{
-The function will return an object of class ccpoints.
-A list including the data frame with the system points, and column names of the time series.\cr
-The data frame will include the submited time series and the followin new columns: \cr\cr
+The function will return a list object with class ccpoints.
+A list including the data frame with the system points, and column names of the series.\cr
+The data frame will include the submited series and the following new columns: \cr\cr
 data.mean: the mean value for each system \cr
 data.ll: the lower standard deviation of each system \cr
 data.ul: the upper standard deviation of each system \cr
@@ -39,9 +35,9 @@ data.ul: the upper standard deviation of each system \cr
 \description{
 Control Charts made easy.
 Calculates Control Systems for a time series.
-The current distrubution uses two Control Rules to define systems:
-1. Mean Rule: Six continuous points above or below mean. See points.vs.avg argument.
-2. Standard Deviation Rule: Four points above or below SD. See points.vs.sd argument.
+The current distribution uses the following Control Rules to define systems:
+1. Mean Rule: N continuous points above or below mean. See points.vs.avg argument.
+2. Out of Control Points Rule: Points above or below 3 Standard Deviation are excluded from calculations.
 }
 \examples{
 # Create a random time series
