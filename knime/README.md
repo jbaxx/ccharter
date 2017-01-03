@@ -6,7 +6,7 @@ I'll show you how the `ccharter` function can be integrated in a KNIME workflow.
 
 We'll be using use the nodes in the picture below for this example.
 
-![knime flow](knime_workflow.PNG)
+![knime flow](plots/knime_workflow.PNG)
 
 1.  Ensure you have installed the `ccharter` package in R and that KNIME uses your own R installation
     -   Package [installation instructions](https://github.com/jbaxx/ccharter)
@@ -88,14 +88,14 @@ knime.in$"t.dates" <- as.Date(knime.in$"t.dates")
 To view the plot, right-click the <i>R View (Table)</i> node and select <i>View R: View\_:</i>
 </li>
 </ol>
-![knime flow](knime_workflow_view.PNG)
+![knime flow](plots/knime_workflow_view.PNG)
 
 <ol start="6">
 <li>
 Your result may look like this:
 </li>
 </ol>
-![knime flow](knime_workflow_view_plot.PNG)
+![knime flow](plots/knime_workflow_view_plot.PNG)
 
 <ol start="6">
 <li>
