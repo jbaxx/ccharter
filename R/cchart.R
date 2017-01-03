@@ -288,6 +288,5 @@ cc2plot <- function(data, data.title = "") {
   g <- g + ggplot2::ggtitle(data.title)
   g <- g + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0))
   print(g)
-  return(g)
 }
 
