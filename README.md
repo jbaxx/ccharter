@@ -67,12 +67,12 @@ If we inspect the object we may find it's a list consisting in the following ele
 lapply(control.chart.data, head)
 #> $data
 #>      t.dates t.values data.mean  data.ll  data.ul
-#> 1 2014-02-01 3.071129  3.156051 2.991715 3.320387
-#> 2 2014-03-01 3.140564  3.156051 2.991715 3.320387
-#> 3 2014-04-01 3.008430  3.156051 2.991715 3.320387
-#> 4 2014-05-01 3.243547  3.156051 2.991715 3.320387
-#> 5 2014-06-01 3.442773  3.156051 2.991715 3.320387
-#> 6 2014-07-01 3.029862  3.156051 2.991715 3.320387
+#> 1 2014-02-01 3.071129  3.217276 2.996493 3.438059
+#> 2 2014-03-01 3.140564  3.217276 2.996493 3.438059
+#> 3 2014-04-01 3.008430  3.217276 2.996493 3.438059
+#> 4 2014-05-01 3.243547  3.217276 2.996493 3.438059
+#> 5 2014-06-01 3.442773  3.217276 2.996493 3.438059
+#> 6 2014-07-01 3.029862  3.217276 2.996493 3.438059
 #> 
 #> $dates.name
 #> [1] "t.dates"
@@ -81,7 +81,7 @@ lapply(control.chart.data, head)
 #> [1] "t.values"
 #> 
 #> $systems_count
-#> [1] 5
+#> [1] 4
 #> 
 #> $missing_values
 #> [1] NA
@@ -96,8 +96,8 @@ lapply(control.chart.data, head)
 #> [1] "Next system expected to break negative"
 #> 
 #> $next_break_values
-#>  Continous points vs mean:  Continuous points vs 2 SD:  
-#>                           5                           4
+#> Continous points vs mean:  
+#>                          6
 ```
 
 To extract the data frame, we can access it from the list in the following way:
