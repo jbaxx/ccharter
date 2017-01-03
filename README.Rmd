@@ -7,13 +7,13 @@ output: github_document
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "README-"
+  fig.path = "plots/README-"
 )
 ```
 
 # ccharter
 
-Control Charts made easy. ccharter focus on calculating control systems in a time series and plotting them as an overlay to the series.
+Control Charts made easy. ccharter focus on calculating control systems in a series and plotting them as an overlay to it.
 
 # Installation
 
@@ -30,7 +30,7 @@ Control Charts made easy. ccharter focus on calculating control systems in a tim
 
 The ccharter package comes with two main functions: 
 
-*  `ccpoints` to calculate Control Systems points from a time series data frame
+*  `ccpoints` to calculate Control Systems points from a series data frame
 *  `cc2plot` to plot the Control Systems points (Control Chart)
 
 Loading the package
@@ -59,11 +59,17 @@ time.series <- data.frame(t.dates = seq.Date(as.Date("2014-02-01"), as.Date("201
 control.chart.data <- ccpoints(time.series, "t.dates", "t.values")
 ```
 
-If we inspect the object we may find it's a list consisting in:
+If we inspect the object we may find it's a list consisting in the following elements:
 
-  1. The first element is the input time series along with the calculated mean and sd for each system
-  2. The second element is the name of the dates column
-  3. The third element is the name of the values column
+  1. The input time series along with the calculated mean and sd for each system
+  2. The name of the dates column
+  3. The name of the values column
+  4. The count of systems result
+  5. The summary of missing values removed
+  6. The reference point of last break
+  7. The weeks since last break (if date values were provided)
+  8. The next break expectation, above or below of current system
+  9. The points remaining for a new system break
 
 ```{r}
 # Inspecting cchart object content
@@ -78,9 +84,9 @@ control.chart.data[["data"]]
 
 Plotting the Control Systems points
 
-This is how the time series looks like:
+This is how the example series looks like:
 
-```{r echo=FALSE, fig.width=9,fig.height=4}
+```{r time_series_data, echo=FALSE, fig.width=9,fig.height=4}
 g <- ggplot2::ggplot(control.chart.data[["data"]], ggplot2::aes(x = t.dates))
 
 #g <- g + ggplot2::geom_line(ggplot2::aes(y = data.mean), size = 1.2, color = "darkorange")
@@ -101,7 +107,7 @@ print(g)
 
 * An example usage of `cc2plot`:
 
-```{r example, fig.width=9,fig.height=4}
+```{r control_charted_data, fig.width=9,fig.height=4}
 # Passing the cchart object to the cc2plot function
 cc2plot(control.chart.data)
 ```
